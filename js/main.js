@@ -45,6 +45,9 @@ const observer = new IntersectionObserver((entries) => {
 
 fadeElements.forEach(el => observer.observe(el));
 
+// ========== EmailJS 초기화 ==========
+emailjs.init('_PF0Z2una6brPSaqj');
+
 // ========== 상담 신청 폼 처리 ==========
 const contactForm = document.getElementById('contactForm');
 const modalOverlay = document.getElementById('modalOverlay');
@@ -71,15 +74,22 @@ contactForm.addEventListener('submit', (e) => {
   submitBtn.disabled = true;
   submitBtn.textContent = '전송 중...';
 
-  // Google Forms 연동 (POST 전송)
-  // 실제 Google Form URL과 entry ID로 교체 필요
-  // 현재는 데모 모드로 바로 성공 모달 표시
-  setTimeout(() => {
+  // EmailJS로 이메일 전송
+  emailjs.send('service_zn9vpo6', 'template_y5j8h8m', {
+    name: data.name,
+    phone: data.phone,
+    accident_type: data.accident_type || '미선택',
+    message: data.message || '없음'
+  }).then(() => {
     modalOverlay.classList.add('active');
     contactForm.reset();
     submitBtn.disabled = false;
     submitBtn.textContent = '무료 상담 신청하기';
-  }, 600);
+  }).catch((err) => {
+    alert('전송에 실패했습니다. 전화(010-4107-2831)로 문의해 주세요.');
+    submitBtn.disabled = false;
+    submitBtn.textContent = '무료 상담 신청하기';
+  });
 });
 
 // 모달 닫기
